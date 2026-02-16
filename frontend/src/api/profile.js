@@ -24,3 +24,11 @@ export function followUser(userId) {
 export function unfollowUser(userId) {
   return api.post(`/social/unfollow/${userId}/`);
 }
+
+export function getReviews(username) {
+  return api.get(`/social/profile/${encodeURIComponent(username)}/reviews/`);
+}
+
+export function submitReview(username, rating, text) {
+  return api.post(`/social/profile/${encodeURIComponent(username)}/reviews/`, { rating, text });
+}

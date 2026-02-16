@@ -8,13 +8,13 @@ User = get_user_model()
 class MusicianProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MusicianProfile
-        fields = ["bio", "instruments", "genres", "available_for_gigs"]
+        fields = ["photo", "bio", "city", "state", "instruments", "genres", "whatsapp", "instagram"]
 
 
 class ContractorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContractorProfile
-        fields = ["company_name", "bio"]
+        fields = ["photo", "bio", "city", "state", "company_name", "whatsapp", "instagram"]
 
 
 class UserMeSerializer(serializers.ModelSerializer):

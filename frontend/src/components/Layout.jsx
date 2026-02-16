@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { logout } from "../auth/auth";
 import { Home, Search, User2, LogOut } from "lucide-react";
+import Footer from "./Footer";
 
 function Brand() {
   return (
@@ -26,6 +27,7 @@ function Brand() {
         <div style={{ fontSize: 12, color: "var(--muted)" }}>Link do palco</div>
       </div>
     </div>
+    
   );
 }
 
@@ -63,6 +65,7 @@ function NavItem({ to, icon: Icon, label }) {
       </span>
       <span style={{ fontWeight: 650 }}>{label}</span>
     </Link>
+    
   );
 }
 
@@ -110,9 +113,13 @@ export default function Layout({ children }) {
         </div>
       </aside>
 
+
       <main>
         <div className="container">{children}</div>
       </main>
     </div>
+
+    
+    
   );
 }

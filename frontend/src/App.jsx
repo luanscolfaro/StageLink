@@ -7,6 +7,8 @@ import ProfilePage from "./pages/ProfilePage";
 import Register from "./pages/Register";
 import SearchPeople from "./pages/SearchPeople";
 import MeRedirect from "./pages/MeRedirect";
+import EditProfile from "./pages/EditProfile";
+
 
 export default function App() {
   return (
@@ -48,6 +50,7 @@ export default function App() {
         <Route path="/people" element={<SearchPeople />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/me" element={<MeRedirect />} />
+        <Route path="/edit-profile" element={<EditProfile />} />
 
 
       </Routes>

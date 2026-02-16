@@ -1,5 +1,9 @@
 from rest_framework import serializers
 from .models import Post, Comment
+from django.contrib.auth import get_user_model
+from .models import Review
+
+User = get_user_model()
 
 class PostSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source="author.username", read_only=True)
@@ -37,3 +41,11 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "post", "user", "user_username", "text", "created_at"]
         read_only_fields = ["user", "post"]  # <-- AQUI está a correção
+
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer_username = serializers.CharField(source="reviewer.username", read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ["id", "reviewer", "reviewer_username", "target", "rating", "text", "created_at", "updated_at"]
+        read_only_fields = ["reviewer", "target", "created_at", "updated_at"]

@@ -1,5 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from .views import profile_reviews
 
 from .views import (
     PostViewSet,
@@ -34,4 +35,6 @@ urlpatterns = [
     path("profile/<str:username>/", profile_detail, name="profile-detail"),
     path("profile/<str:username>/followers/", profile_followers, name="profile-followers"),
     path("profile/<str:username>/following/", profile_following, name="profile-following"),
+    path("profile/<str:username>/reviews/", profile_reviews, name="profile-reviews"),
+
 ]

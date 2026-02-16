@@ -31,3 +31,8 @@ export function getComments(postId) {
 export function addComment(postId, text) {
   return api.post(`/social/posts/${postId}/comments/`, { text });
 }
+
+export function getUserPosts(username) {
+  return api.get(`/social/posts/?author=${encodeURIComponent(username)}`);
+}
+

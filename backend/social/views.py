@@ -5,8 +5,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from .models import Post, Comment, Follow
-from .serializers import PostSerializer, CommentSerializer
+from .models import Post, Comment, Follow, Review
+from .serializers import PostSerializer, CommentSerializer, ReviewSerializer
+from django.db.models import Avg, Count
 
 User = get_user_model()
 
@@ -17,8 +18,14 @@ class PostViewSet(ModelViewSet):
     parser_classes = [MultiPartParser, FormParser]
 
     def get_queryset(self):
-        # Feed: posts mais recentes (simples e estável)
-        return Post.objects.all().order_by("-created_at")
+        qs = Post.objects.all().order_by("-created_at")
+
+        author = self.request.query_params.get("author")
+        if author:
+            qs = qs.filter(author__username=author)
+
+        return qs
+
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -169,3 +176,54 @@ def profile_following(request, username: str):
         for f in qs
     ]
     return Response(data)
+
+@api_view(["GET", "POST"])
+@permission_classes([permissions.IsAuthenticated])
+def profile_reviews(request, username: str):
+    target = User.objects.filter(username=username).first()
+    if not target:
+        return Response({"detail": "Usuário não encontrado."}, status=404)
+
+    if request.method == "GET":
+        qs = Review.objects.filter(target=target).select_related("reviewer").order_by("-created_at")
+        agg = qs.aggregate(avg=Avg("rating"), count=Count("id"))
+        avg_rating = float(agg["avg"] or 0.0)
+        count = int(agg["count"] or 0)
+
+        mine = Review.objects.filter(target=target, reviewer=request.user).first()
+
+        return Response({
+            "target": {"id": target.id, "username": target.username, "account_type": getattr(target, "account_type", None)},
+            "avg_rating": round(avg_rating, 2),
+            "count": count,
+            "my_review": ReviewSerializer(mine).data if mine else None,
+            "items": ReviewSerializer(qs[:200], many=True).data,
+        })
+
+    # POST: cria ou atualiza (upsert)
+    if request.user.id == target.id:
+        return Response({"detail": "Você não pode avaliar você mesmo."}, status=400)
+
+    rating = request.data.get("rating")
+    text = request.data.get("text", "")
+
+    try:
+        rating_int = int(rating)
+    except Exception:
+        return Response({"detail": "Nota inválida."}, status=400)
+
+    if rating_int < 1 or rating_int > 5:
+        return Response({"detail": "A nota deve ser entre 1 e 5."}, status=400)
+
+    review, created = Review.objects.get_or_create(
+        reviewer=request.user,
+        target=target,
+        defaults={"rating": rating_int, "text": text or ""}
+    )
+
+    if not created:
+        review.rating = rating_int
+        review.text = text or ""
+        review.save()
+
+    return Response({"status": "ok", "created": created, "review": ReviewSerializer(review).data})
