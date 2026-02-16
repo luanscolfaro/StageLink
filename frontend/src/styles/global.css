@@ -1,0 +1,10 @@
+@import "./theme.css";
+@import "./glow.css";
+
+input, textarea, button{
+  font: inherit;
+}
+
+::selection{
+  background: rgba(56,189,248,0.30);
+}

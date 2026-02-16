@@ -6,28 +6,21 @@ User = settings.AUTH_USER_MODEL
 
 class Post(models.Model):
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="posts"
     )
     content = models.TextField()
     image = models.ImageField(upload_to="posts/", blank=True, null=True)
+    likes = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name="liked_posts",
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
 
     def __str__(self):
-        return f"Post {self.id} - {self.author}"
-
-
-class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ("user", "post")
+        return f"{self.author.username} - {self.created_at}"
 
 
 class Comment(models.Model):
@@ -41,17 +34,12 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
-    follower = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="following"
-    )
-    following = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="followers"
-    )
+    follower = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="following")
+    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="followers")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("follower", "following")
+
+    def __str__(self):
+        return f"{self.follower} -> {self.following}"

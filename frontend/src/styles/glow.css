@@ -1,0 +1,22 @@
+.glow-card:hover{
+    transform: translateY(-2px);
+    border-color: rgba(56,189,248,0.28);
+  }
+  
+  .glow-layer{
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      280px 280px at var(--mx, 50%) var(--my, 50%),
+      rgba(56,189,248,0.22),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity .18s ease;
+    pointer-events: none;
+  }
+  
+  .glow-card:hover .glow-layer{
+    opacity: 1;
+  }
+  
