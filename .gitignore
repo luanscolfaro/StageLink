@@ -1,0 +1,34 @@
+# ===== Python / Django =====
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
+# Virtual env
+venv/
+.env
+
+# Django media / static
+media/
+staticfiles/
+
+# Migrations (opcional manter, mas aqui vamos ignorar)
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# ===== Node / React =====
+node_modules/
+dist/
+build/
+
+# Vite
+.vite/
+
+# ===== OS =====
+Thumbs.db
+Desktop.ini
+
+# ===== VSCode =====
+.vscode/
