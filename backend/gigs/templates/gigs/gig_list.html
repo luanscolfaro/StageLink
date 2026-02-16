@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gigs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .filters { border: 1px solid #ccc; padding: 16px; margin-bottom: 20px; }
+        .gig-card { border: 1px solid #ddd; padding: 16px; margin-bottom: 12px; }
+        .meta { color: #555; font-size: 14px; }
+        .actions a { margin-right: 12px; }
+        .pagination a, .pagination span { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Gigs/Freelas</h1>
+
+    <div class="actions">
+        {% if user.is_authenticated and user.account_type == "contractor" %}
+            <a href="{% url 'gigs:create' %}">Criar gig</a>
+            <a href="{% url 'gigs:manage_gigs' %}">Gerenciar meus gigs</a>
+        {% endif %}
+        {% if user.is_authenticated and user.account_type == "musician" %}
+            <a href="{% url 'gigs:my_applications' %}">Minhas candidaturas</a>
+        {% endif %}
+    </div>
+
+    <form method="get" class="filters">
+        <p>{{ filter_form.q.label_tag }} {{ filter_form.q }}</p>
+        <p>{{ filter_form.city.label_tag }} {{ filter_form.city }}</p>
+        <p>{{ filter_form.date_range.label_tag }} {{ filter_form.date_range }}</p>
+        <p>{{ filter_form.instruments.label_tag }} {{ filter_form.instruments }}</p>
+        <p>{{ filter_form.genres.label_tag }} {{ filter_form.genres }}</p>
+        <p>{{ filter_form.pay_type.label_tag }} {{ filter_form.pay_type }}</p>
+        <p>{{ filter_form.min_pay.label_tag }} {{ filter_form.min_pay }}</p>
+        <p>{{ filter_form.status.label_tag }} {{ filter_form.status }}</p>
+        <p>{{ filter_form.ordering.label_tag }} {{ filter_form.ordering }}</p>
+        <button type="submit">Filtrar</button>
+        <a href="{% url 'gigs:list' %}">Limpar filtros</a>
+    </form>
+
+    {% for gig in gigs %}
+        <article class="gig-card">
+            <h2><a href="{% url 'gigs:detail' gig.slug %}">{{ gig.title }}</a></h2>
+            <p class="meta">
+                {{ gig.city }}
+                {% if gig.venue %} | {{ gig.venue }}{% endif %}
+                | {{ gig.event_date }}
+                | {{ gig.get_status_display }}
+            </p>
+            <p>{{ gig.description|truncatechars:220 }}</p>
+            <p class="meta">
+                Pagamento: {{ gig.get_pay_type_display }}
+                {% if gig.pay_amount %} - {{ gig.pay_currency }} {{ gig.pay_amount }}{% endif %}
+            </p>
+            <p class="meta">
+                Instrumentos: {{ gig.instruments_needed|default:"-" }}<br>
+                Estilos: {{ gig.genres|default:"-" }}
+            </p>
+            <p class="meta">
+                Tags:
+                {% for tag in gig.tags.all %}
+                    #{{ tag.name }}
+                {% empty %}
+                    sem tags
+                {% endfor %}
+            </p>
+        </article>
+    {% empty %}
+        <p>Nenhum gig encontrado para os filtros atuais.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page=1">Primeira</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+            {% if page_obj.has_next %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Próxima</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Última</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

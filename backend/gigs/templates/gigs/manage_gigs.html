@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Gigs</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .card { border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'gigs:list' %}">Voltar para lista pública</a></p>
+    <h1>Meus gigs</h1>
+    <p><a href="{% url 'gigs:create' %}">Criar novo gig</a></p>
+
+    {% for gig in gigs %}
+        <article class="card">
+            <h2><a href="{% url 'gigs:detail' gig.slug %}">{{ gig.title }}</a></h2>
+            <p>
+                {{ gig.city }} | {{ gig.event_date }} | {{ gig.get_status_display }}
+            </p>
+            <p>
+                <a href="{% url 'gigs:edit' gig.id %}">Editar</a> |
+                <a href="{% url 'gigs:manage_applications' gig.id %}">Candidaturas</a>
+            </p>
+            {% if gig.status == "OPEN" %}
+                <form method="post" action="{% url 'gigs:change_status' gig.id 'CLOSED' %}">
+                    {% csrf_token %}
+                    <button type="submit">Fechar</button>
+                </form>
+            {% endif %}
+        </article>
+    {% empty %}
+        <p>Você ainda não criou gigs.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div>
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

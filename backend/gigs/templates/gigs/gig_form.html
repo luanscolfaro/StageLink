@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if form.instance.pk %}Editar Gig{% else %}Novo Gig{% endif %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .errorlist { color: #b00020; }
+        form p { margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'gigs:list' %}">Voltar para lista</a></p>
+    <h1>{% if form.instance.pk %}Editar Gig{% else %}Criar Gig{% endif %}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar</button>
+    </form>
+</body>
+</html>

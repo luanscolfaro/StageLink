@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candidaturas - {{ gig.title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .card { border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; }
+        form.inline { display: inline; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <p>
+        <a href="{% url 'gigs:manage_gigs' %}">Voltar para meus gigs</a> |
+        <a href="{% url 'gigs:detail' gig.slug %}">Ir para detalhe do gig</a>
+    </p>
+    <h1>Candidaturas: {{ gig.title }}</h1>
+
+    {% for application in applications %}
+        <article class="card">
+            <p>
+                <strong>{{ application.musician.username }}</strong>
+                - {{ application.get_status_display }}
+                - {{ application.created_at }}
+            </p>
+            <p>{{ application.message|linebreaks }}</p>
+            {% if application.portfolio_url %}
+                <p><a href="{{ application.portfolio_url }}" target="_blank">Portfólio</a></p>
+            {% endif %}
+            {% if application.attachment %}
+                <p><a href="{{ application.attachment.url }}">Anexo</a></p>
+            {% endif %}
+            <form class="inline" method="post" action="{% url 'gigs:application_decision' gig.id application.id 'accept' %}">
+                {% csrf_token %}
+                <button type="submit">Aceitar</button>
+            </form>
+            <form class="inline" method="post" action="{% url 'gigs:application_decision' gig.id application.id 'reject' %}">
+                {% csrf_token %}
+                <button type="submit">Recusar</button>
+            </form>
+        </article>
+    {% empty %}
+        <p>Sem candidaturas para este gig.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div>
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

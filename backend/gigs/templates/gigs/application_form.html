@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Candidatar-se</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .errorlist { color: #b00020; }
+        form p { margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'gigs:detail' gig.slug %}">Voltar para gig</a></p>
+    <h1>Candidatar-se: {{ gig.title }}</h1>
+
+    {% if gig.status != "OPEN" %}
+        <p>Este gig não está aberto para candidaturas.</p>
+    {% else %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Enviar candidatura</button>
+        </form>
+    {% endif %}
+</body>
+</html>

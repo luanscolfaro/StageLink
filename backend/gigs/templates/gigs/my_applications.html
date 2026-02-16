@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minhas Candidaturas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .card { border: 1px solid #ddd; padding: 12px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'gigs:list' %}">Voltar para gigs</a></p>
+    <h1>Minhas candidaturas</h1>
+
+    <form method="get">
+        <label for="status">Status:</label>
+        <select name="status" id="status">
+            <option value="">Todos</option>
+            {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Filtrar</button>
+    </form>
+
+    {% for application in applications %}
+        <article class="card">
+            <h2>
+                <a href="{% url 'gigs:detail' application.gig.slug %}">
+                    {{ application.gig.title }}
+                </a>
+            </h2>
+            <p>Status: <strong>{{ application.get_status_display }}</strong></p>
+            <p>{{ application.message|truncatechars:220 }}</p>
+            <form method="post" action="{% url 'gigs:withdraw_application' application.id %}">
+                {% csrf_token %}
+                <button type="submit" {% if application.status == "WITHDRAWN" %}disabled{% endif %}>
+                    Retirar candidatura
+                </button>
+            </form>
+        </article>
+    {% empty %}
+        <p>Você ainda não possui candidaturas.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div>
+            {% if page_obj.has_previous %}
+                <a href="?status={{ current_status }}&page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?status={{ current_status }}&page={{ page_obj.next_page_number }}">Próxima</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

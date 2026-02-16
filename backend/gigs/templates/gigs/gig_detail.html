@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ gig.title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .box { border: 1px solid #ddd; padding: 16px; margin-bottom: 16px; }
+        .meta { color: #555; font-size: 14px; }
+        form.inline { display: inline; }
+        .application { border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'gigs:list' %}">Voltar para lista</a></p>
+
+    <section class="box">
+        <h1>{{ gig.title }}</h1>
+        <p class="meta">
+            Contratante: {{ gig.owner.username }} |
+            Cidade: {{ gig.city }}{% if gig.venue %} - {{ gig.venue }}{% endif %} |
+            Data: {{ gig.event_date }} |
+            Status: {{ gig.get_status_display }}
+        </p>
+        <p>{{ gig.description|linebreaks }}</p>
+        <p><strong>Instrumentos:</strong> {{ gig.instruments_needed|default:"-" }}</p>
+        <p><strong>Estilos:</strong> {{ gig.genres|default:"-" }}</p>
+        <p>
+            <strong>Tags:</strong>
+            {% for tag in gig.tags.all %}
+                #{{ tag.name }}
+            {% empty %}
+                sem tags
+            {% endfor %}
+        </p>
+        <p>
+            <strong>Pagamento:</strong>
+            {{ gig.get_pay_type_display }}
+            {% if gig.pay_amount %}
+                - {{ gig.pay_currency }} {{ gig.pay_amount }}
+            {% endif %}
+        </p>
+    </section>
+
+    {% if user.is_authenticated and user.account_type == "musician" %}
+        <section class="box">
+            <h2>Minha candidatura</h2>
+            {% if can_apply %}
+                <a href="{% url 'gigs:apply' gig.slug %}">Candidatar-se</a>
+            {% elif my_application %}
+                <p>Status: <strong>{{ my_application.get_status_display }}</strong></p>
+                <p>{{ my_application.message|linebreaks }}</p>
+                {% if my_application.portfolio_url %}
+                    <p>Portfólio: <a href="{{ my_application.portfolio_url }}" target="_blank">{{ my_application.portfolio_url }}</a></p>
+                {% endif %}
+                {% if my_application.status != "WITHDRAWN" %}
+                    <form method="post" action="{% url 'gigs:withdraw_application' my_application.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'gigs:detail' gig.slug %}">
+                        <button type="submit">Retirar candidatura</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <p>Este gig não está aberto para candidaturas.</p>
+            {% endif %}
+        </section>
+    {% endif %}
+
+    {% if can_manage %}
+        <section class="box">
+            <h2>Gestão do contratante</h2>
+            <p>
+                <a href="{% url 'gigs:edit' gig.id %}">Editar gig</a> |
+                <a href="{% url 'gigs:manage_applications' gig.id %}">Ver candidaturas em tela separada</a>
+            </p>
+
+            {% if gig.status == "OPEN" %}
+                <form class="inline" method="post" action="{% url 'gigs:change_status' gig.id 'CLOSED' %}">
+                    {% csrf_token %}
+                    <button type="submit">Fechar gig</button>
+                </form>
+                <form class="inline" method="post" action="{% url 'gigs:change_status' gig.id 'CANCELLED' %}">
+                    {% csrf_token %}
+                    <button type="submit">Cancelar gig</button>
+                </form>
+            {% endif %}
+        </section>
+
+        <section class="box">
+            <h2>Candidaturas</h2>
+            {% for application in applications %}
+                <article class="application">
+                    <p>
+                        <strong>{{ application.musician.username }}</strong>
+                        - {{ application.get_status_display }}
+                        - {{ application.created_at }}
+                    </p>
+                    <p>{{ application.message|linebreaks }}</p>
+                    {% if application.portfolio_url %}
+                        <p><a href="{{ application.portfolio_url }}" target="_blank">Portfólio</a></p>
+                    {% endif %}
+                    {% if application.attachment %}
+                        <p><a href="{{ application.attachment.url }}">Anexo</a></p>
+                    {% endif %}
+                    <form class="inline" method="post" action="{% url 'gigs:application_decision' gig.id application.id 'accept' %}">
+                        {% csrf_token %}
+                        <button type="submit">Aceitar</button>
+                    </form>
+                    <form class="inline" method="post" action="{% url 'gigs:application_decision' gig.id application.id 'reject' %}">
+                        {% csrf_token %}
+                        <button type="submit">Recusar</button>
+                    </form>
+                </article>
+            {% empty %}
+                <p>Ainda não há candidaturas.</p>
+            {% endfor %}
+        </section>
+    {% endif %}
+</body>
+</html>
