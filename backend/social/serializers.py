@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from .models import Post, Comment
+
+from .models import Comment, Post
 
 
 class PostSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source="author.username", read_only=True)
-    likes_count = serializers.IntegerField(source="likes.count", read_only=True)
-    comments_count = serializers.IntegerField(source="comments.count", read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
@@ -16,16 +17,32 @@ class PostSerializer(serializers.ModelSerializer):
             "content",
             "image",
             "created_at",
+            "updated_at",
+            "is_active",
             "likes_count",
             "comments_count",
         ]
         read_only_fields = ["author"]
 
+    def get_likes_count(self, obj):
+        return obj.likes.count()
+
+    def get_comments_count(self, obj):
+        return obj.comments.filter(is_active=True).count()
+
 
 class CommentSerializer(serializers.ModelSerializer):
-    user_username = serializers.CharField(source="user.username", read_only=True)
+    author_username = serializers.CharField(source="author.username", read_only=True)
 
     class Meta:
         model = Comment
-        fields = ["id", "post", "user", "user_username", "text", "created_at"]
-        read_only_fields = ["user"]
+        fields = [
+            "id",
+            "post",
+            "author",
+            "author_username",
+            "content",
+            "created_at",
+            "is_active",
+        ]
+        read_only_fields = ["author"]

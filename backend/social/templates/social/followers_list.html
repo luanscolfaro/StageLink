@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Followers</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; background: #f6f7f9; }
+        .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+        .meta { color: #666; font-size: 14px; }
+        .pagination a, .pagination span { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Meus seguidores</h1>
+    <p>
+        <a href="{% url 'social:feed' %}">Voltar para feed</a> |
+        <a href="{% url 'social:user_profile' request.user.username %}">Meu perfil</a>
+    </p>
+
+    {% for relation in relations %}
+        <article class="card">
+            <p>
+                <a href="{% url 'social:user_profile' relation.follower.username %}">
+                    {{ relation.follower.username }}
+                </a>
+            </p>
+            <p class="meta">Segue voce desde {{ relation.created_at }}</p>
+        </article>
+    {% empty %}
+        <p>Voce ainda nao tem seguidores.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page=1">Primeira</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Proxima</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Ultima</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>

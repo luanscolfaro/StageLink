@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Post</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; background: #f6f7f9; }
+        .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 18px; max-width: 700px; }
+        .actions { margin-top: 12px; display: flex; gap: 10px; }
+        .errorlist { color: #b00020; }
+    </style>
+</head>
+<body>
+    <h1>Novo Post</h1>
+
+    <div class="card">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="actions">
+                <button type="submit">Publicar</button>
+                <a href="{% url 'social:feed' %}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

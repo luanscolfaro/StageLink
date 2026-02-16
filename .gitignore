@@ -3,12 +3,18 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.pyc
 *.sqlite3
+**/*.sqlite3
 *.log
 
 # Virtual env
 venv/
+.venv/
 .env
+.env.*
+*.env
+**/.env
 
 # Django media / static
 media/

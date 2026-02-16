@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - {{ profile_user.username }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; background: #f6f7f9; }
+        .header { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .stats { color: #555; margin-bottom: 10px; }
+        .post-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .meta { color: #666; font-size: 14px; margin-bottom: 8px; }
+        .content { white-space: pre-wrap; margin: 8px 0; }
+        .post-image { max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0; }
+        .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .pagination a, .pagination span { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <p><a href="{% url 'social:feed' %}">Voltar para feed</a></p>
+
+    <section class="header">
+        <h1>@{{ profile_user.username }}</h1>
+        <div class="stats">
+            Seguidores: {{ followers_count }} |
+            Seguindo: {{ following_count }}
+        </div>
+
+        {% if user.is_authenticated and not is_self %}
+            <form method="post" action="{% url 'social:toggle_follow' profile_user.username %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit">
+                    {% if is_following %}Deixar de seguir{% else %}Seguir{% endif %}
+                </button>
+            </form>
+        {% endif %}
+
+        {% if is_self %}
+            <p>
+                <a href="{% url 'social:following_list' %}">Ver quem eu sigo</a> |
+                <a href="{% url 'social:followers_list' %}">Ver meus seguidores</a>
+            </p>
+        {% endif %}
+    </section>
+
+    <h2>Posts</h2>
+    {% for post in posts %}
+        <article class="post-card">
+            <p class="meta">{{ post.created_at }}</p>
+            <div class="content">{{ post.content }}</div>
+
+            {% if post.image %}
+                <img class="post-image" src="{{ post.image.url }}" alt="Post image">
+            {% endif %}
+
+            <div class="actions">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'social:toggle_like' post.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit">
+                            {% if post.is_liked %}Descurtir{% else %}Curtir{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+                <span>{{ post.likes_count }} curtidas</span>
+                <a href="{% url 'social:post_detail' post.id %}">{{ post.comments_count }} comentarios</a>
+            </div>
+        </article>
+    {% empty %}
+        <p>Este usuario ainda nao publicou posts ativos.</p>
+    {% endfor %}
+
+    {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page=1">Primeira</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span>Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Proxima</a>
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Ultima</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</body>
+</html>
