@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Editar Contratante</title>
+</head>
+<body>
+    <h1>Editar Perfil de Contratante</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar</button>
+    </form>
+    <p><a href="{% url 'accounts:dashboard' %}">Voltar</a></p>
+</body>
+</html>

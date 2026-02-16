@@ -1,13 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import User, MusicianProfile, ContractorProfile
+
+from .models import User
+from .services import ensure_profile_for_user
+
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if not created:
-        return
-
-    if instance.account_type == "musician":
-        MusicianProfile.objects.create(user=instance)
-    else:
-        ContractorProfile.objects.create(user=instance)
+def create_profile_for_new_user(sender, instance, created, **kwargs):
+    if created:
+        ensure_profile_for_user(instance)

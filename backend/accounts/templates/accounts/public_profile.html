@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ profile.display_name }}</title>
+</head>
+<body>
+    <h1>{{ profile.display_name }}</h1>
+    <p>@{{ profile.user.username }}</p>
+    <p>Cidade: {{ profile.city|default:"-" }}</p>
+    <p>Bio: {{ profile.bio|default:"-" }}</p>
+
+    <h2>Papeis ativos</h2>
+    {% if role_keys %}
+        <ul>
+            {% for role in profile.roles.all %}
+                <li>{{ role.name }} ({{ role.key }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Nenhum papel ativo.</p>
+    {% endif %}
+
+    {% if show_musician %}
+        <h2>Dados de Musico</h2>
+        <p>Instrumentos: {{ profile.musician_profile.instruments|default:"-" }}</p>
+        <p>Generos/Estilos: {{ profile.musician_profile.genres|default:"-" }}</p>
+        <p>Disponivel para gigs: {{ profile.musician_profile.available_for_gigs }}</p>
+        <p>Spotify: {{ profile.musician_profile.spotify_url|default:"-" }}</p>
+        <p>YouTube: {{ profile.musician_profile.youtube_url|default:"-" }}</p>
+        <p>Instagram: {{ profile.musician_profile.instagram_url|default:"-" }}</p>
+    {% endif %}
+
+    {% if show_contractor %}
+        <h2>Dados de Contratante</h2>
+        <p>Empresa: {{ profile.contractor_profile.company_name|default:"-" }}</p>
+        <p>Website: {{ profile.contractor_profile.company_website|default:"-" }}</p>
+    {% endif %}
+</body>
+</html>

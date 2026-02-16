@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Editar Roles</title>
+</head>
+<body>
+    <h1>Gerenciar Papeis</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Salvar papeis</button>
+    </form>
+    <p>Desativar um papel nao apaga os dados do subperfil.</p>
+    <p><a href="{% url 'accounts:dashboard' %}">Voltar</a></p>
+</body>
+</html>
